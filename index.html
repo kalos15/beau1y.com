@@ -111,11 +111,11 @@
         for (const article of allArticles) {
             const h3 = article.querySelector('h3.text-lg');
             
-            // Check if the <h3> text content matches the current domain
-            if (h3 && h3.textContent.trim() === currentDomain) {
-                targetArticle = article;
-                break;
-            }
+            // Check if the lowercase <h3> text content matches the current domain
+            if (h3 && h3.textContent.trim().toLowerCase() === currentDomain) {
+                targetArticle = article;
+                break;
+            }
         }
 
         // 3. If the matching card is found, extract the data and open the modal
@@ -2222,6 +2222,7 @@
 <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
