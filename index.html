@@ -14,7 +14,32 @@
     <div class="gradient-blue-bg min-h-screen flex flex-col">
         <nav class="max-w-7xl mx-auto px-6 md:px-10 py-6 flex justify-between items-center w-full">
             <div class="flex items-center space-x-8">
-                <a href="#" class="navbar-logo">Kalos</a>
+                <a href="#" class="navbar-logo" id="domainDisplay3"></a>
+<script>
+    // Get the full hostname (e.g., www.example.com or example.com)
+    const rawHostname = window.location.hostname;
+    
+    // Remove 'www.' if it exists to get the clean domain name
+    const currentDomain = rawHostname.replace(/^www\./, '');
+    
+    // --- New Code for Capitalization ---
+    let capitalizedDomain = currentDomain;
+    
+    // Check if the string is not empty before attempting to capitalize
+    if (currentDomain.length > 0) {
+        capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
+    }
+    // ------------------------------------
+    
+    // 💡 UPDATED: Get the element using the id 'domainDisplay3'
+    const domainElement = document.getElementById('domainDisplay3'); 
+    
+    // Check if the element exists and update its text content
+    if (domainElement) {
+        // Use the newly capitalized string
+        domainElement.textContent = capitalizedDomain;
+    }
+</script>
                 <div class="hidden md:flex space-x-6">
                    <a href="https://x.com/kalos_15/" target="_blank" class="navbar-link">X</a>
                     <a id="blogLink" class="navbar-link" onclick="openModal('blogModal')">Blog</a>
@@ -2197,6 +2222,9 @@
 <script src="script.js"></script>
 </body>
 </html>
+
+
+
 
 
 
