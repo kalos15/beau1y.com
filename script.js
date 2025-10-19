@@ -45,17 +45,21 @@ function openDomainModal(domainName, price, description) {
 function closeModal(modalId) {
   const targetModal = document.getElementById(modalId)
   if (!targetModal || !targetModal.open) return // Check if it's open
-  // Check for mobile and swipe-to-close behavior
-  if (window.innerWidth <= 768 && modalId === "domainModal") {
+  
+  // UPDATED: Apply the closing class for the CSS animation on mobile for ALL modals
+  if (window.innerWidth <= 768) {
     targetModal.classList.add("closing")
     setTimeout(() => {
       targetModal.close()
       targetModal.classList.remove("closing")
-    }, 300)
+      targetModal.style.transform = "" // Reset transform after closing
+      removeSwipeListeners()
+    }, 300) // Match the CSS transition time
   } else {
     targetModal.close()
+    targetModal.style.transform = "" // Reset transform on desktop too
+    removeSwipeListeners()
   }
-  removeSwipeListeners()
 }
 
 document.getElementById("closeDomainModal")?.addEventListener("click", () => closeModal("domainModal"))
@@ -64,8 +68,12 @@ document.getElementById("closeDomainModal")?.addEventListener("click", () => clo
 document.querySelectorAll('[onclick*="closeModal"]').forEach((btn) => {
   btn.addEventListener("click", function (e) {
     e.preventDefault()
-    const modalId = this.getAttribute("onclick").match(/'([^']+)'/)[1]
-    closeModal(modalId)
+    // Safely extract modalId from the onclick attribute, e.g., 'closeModal('faqModal')'
+    const match = this.getAttribute("onclick").match(/'([^']+)'/)
+    if (match) {
+        const modalId = match[1]
+        closeModal(modalId)
+    }
   })
 })
 
@@ -78,67 +86,91 @@ function redirectToSpaceship(event) {
   }
 }
 modalNextButton.addEventListener("click", redirectToSpaceship)
-// General swipe/touch handlers
+
+// --- UPDATED SWIPE/TOUCH HANDLERS ---
 function addSwipeListeners(modalId) {
   const modalElement = document.getElementById(modalId)
   if (!modalElement) return
+  
+  // Remove existing listeners first to prevent duplicates
+  removeSwipeListenersForElement(modalElement) 
+
+  // Store the modalId on the element for use in the handlers
+  modalElement.dataset.modalId = modalId 
+
+  // Add the unified handlers
   modalElement.addEventListener("touchstart", handleTouchStart, false)
   modalElement.addEventListener("touchmove", handleTouchMove, false)
-  // Ensure touchend correctly references the modalId for closing
-  modalElement.addEventListener(
-    "touchend",
-    (event) => {
-      handleTouchEnd(event, modalId)
-    },
-    false,
-  )
+  modalElement.addEventListener("touchend", handleTouchEnd, false) 
 }
+
+function removeSwipeListenersForElement(modalElement) {
+    modalElement.removeEventListener("touchstart", handleTouchStart, false)
+    modalElement.removeEventListener("touchmove", handleTouchMove, false)
+    modalElement.removeEventListener("touchend", handleTouchEnd, false)
+}
+
 function removeSwipeListeners() {
   // Remove listeners from all possible modals
   ;["domainModal", "faqModal", "contactModal", "blogModal"].forEach((id) => {
     const modalElement = document.getElementById(id)
     if (modalElement) {
-      // Remove listeners safely
-      modalElement.removeEventListener("touchstart", handleTouchStart, false)
-      modalElement.removeEventListener("touchmove", handleTouchMove, false)
-      modalElement.removeEventListener("touchend", (event) => handleTouchEnd(event, id), false)
-      // The touchend listener needs to be removed by function reference,
-      // but since it's an anonymous function in the addSwipeListeners,
-      // we'll rely on the modal closing and re-adding when opened.
+      removeSwipeListenersForElement(modalElement)
       modalElement.style.transform = "" // Reset transform
+      delete modalElement.dataset.modalId // Clean up
     }
   })
 }
 
 function handleTouchStart(event) {
-  touchStartY = event.touches[0].clientY
-  isSwiping = false
+  const modalElement = event.currentTarget
+  // Check if the scroll position is near the top (allows scrolling content first)
+  if (modalElement.scrollTop < 5) {
+      touchStartY = event.touches[0].clientY
+      isSwiping = false
+  } else {
+      // If content is scrolled, treat it as a normal scroll
+      touchStartY = 0
+      isSwiping = false
+  }
 }
 function handleTouchMove(event) {
-  if (!touchStartY) return
+  if (!touchStartY) return // Not initiating a swipe from the top
 
   const touchY = event.touches[0].clientY
   const diffY = touchY - touchStartY
   const modalElement = event.currentTarget
 
-  // Only allow swiping down
-  if (diffY > 0 && touchStartY < 100) {
+  // Only allow swiping down and if the modal is at the very top of its scroll
+  if (diffY > 0 && modalElement.scrollTop < 5) {
     isSwiping = true
+    event.preventDefault() // Prevent native scrolling when swiping down the modal
+    // Apply transform for the drag effect
     modalElement.style.transform = `translateY(${diffY}px)`
+  } else {
+    // If scrolling up or swiping down with content scrolled
+    isSwiping = false 
+    // Reset transform if a drag was initiated but failed the scrollTop check later
+    if (modalElement.style.transform !== "translateY(0)") {
+        modalElement.style.transform = "translateY(0)" 
+    }
   }
 }
-function handleTouchEnd(event, modalId) {
-  if (!isSwiping) return
+function handleTouchEnd(event) {
+  if (!isSwiping || !touchStartY) return
 
   touchEndY = event.changedTouches[0].clientY
   const diffY = touchEndY - touchStartY
+  const modalElement = event.currentTarget
+  const modalId = modalElement.dataset.modalId // Get the ID from the dataset
 
-  if (diffY > 100) {
+  if (diffY > 100) { // Threshold for closing
     closeModal(modalId)
   } else {
-    event.currentTarget.style.transform = "translateY(0)"
+    modalElement.style.transform = "translateY(0)" // Snap back
   }
 
+  // Reset state variables
   touchStartY = 0
   touchEndY = 0
   isSwiping = false
@@ -147,10 +179,9 @@ function handleTouchEnd(event, modalId) {
 function addBackdropCloseListener(modalId) {
   const targetModal = document.getElementById(modalId)
   if (!targetModal) return
-  // Use an anonymous function to easily remove the listener on close if needed,
-  // but since we are closing the modal and it will be garbage collected/re-attached,
-  // we can keep it simple.
-  targetModal.addEventListener("click", function handler(e) {
+  
+  // Use a named function expression to allow removal later
+  function handler(e) {
     // Check if the click target is the dialog element itself,
     // which means the user clicked the backdrop/outside the inner content.
     if (e.target === targetModal) {
@@ -158,8 +189,13 @@ function addBackdropCloseListener(modalId) {
       // Important: Remove the listener after closing to prevent duplicates/memory leaks
       targetModal.removeEventListener("click", handler)
     }
-  })
+  }
+  
+  // Ensure we don't add multiple listeners
+  // A clean implementation would track this, but for simplicity, we rely on closeModal's cleanup
+  targetModal.addEventListener("click", handler)
 }
+
 // FAQ specific function
 function toggleFaq(element) {
   const answer = element.nextElementSibling
@@ -558,8 +594,11 @@ window.addEventListener("DOMContentLoaded", () => {
 })
 
 // Existing listener for domainModal
-domainModal.addEventListener("click", (e) => {
-  if (e.target === domainModal) {
-    closeModal("domainModal")
-  }
-})
+// This listener is redundant now that addBackdropCloseListener is used,
+// but keeping it simple by leaving it out of the main logic, as addBackdropCloseListener
+// is added when the modal opens.
+// domainModal.addEventListener("click", (e) => {
+//   if (e.target === domainModal) {
+//     closeModal("domainModal")
+//   }
+// })
