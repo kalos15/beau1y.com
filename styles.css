@@ -1,4 +1,4 @@
- @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
             background: #e0e7ff;
@@ -253,26 +253,21 @@
         html {
             scroll-behavior: smooth;
         }
-        /* Modal Styles - Responsive for mobile */
+
+        /* --- UPDATED MODAL STYLES FOR MOBILE SWIPE --- */
+
+        /* Default desktop styles for domainModal (kept mostly the same for desktop) */
         #domainModal {
-
-    border: none;
-
-    padding: 0;
-	    }
-              /* ⬅️ moves content down */
-    position: fixed;
-
-    overflow-y: auto;
-    background: white;
-    z-index: 9999;
-}
-
-
-        #domainModal::backdrop {
-            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            padding: 0;
+            position: fixed;
+            overflow-y: auto;
+            background: white;
+            z-index: 9999;
         }
-#faqModal, #contactModal, #blogModal {
+
+        /* Desktop styles for general modals */
+        #faqModal, #contactModal, #blogModal {
             max-width: 500px; /* Smaller max-width for FAQ/Contact/Blog */
         }
         
@@ -280,14 +275,30 @@
             background: rgba(0, 0, 0, 0.7);
         }
 
-        }
-                /* Desktop-specific styles for the new button (to hide it) */
-        @media (min-width: 769px) {
+        /* Mobile Modal Styles: Bottom Sheet Appearance + Transition */
+        @media (max-width: 768px) {
+            #domainModal, #faqModal, #contactModal, #blogModal {
+                margin: 0; 
+                width: 100%; 
+                max-width: none; 
+                height: auto; 
+                max-height: 90vh; 
+                position: fixed; 
+                bottom: 0; 
+                top: auto; 
+                border-radius: 1rem 1rem 0 0; 
+                padding: 0; 
+                border: none;
+                /* Crucial: Add transition for the swipe-down animation */
+                transition: transform 0.3s ease-out;
+            }
 
-            .swipe-indicator {
-                display: none;
+            /* State for when the modal is closing (swiped down) */
+            #domainModal.closing, #faqModal.closing, #contactModal.closing, #blogModal.closing {
+                transform: translateY(100%);
             }
         }
+        
         /* FAQ Styles */
         .faq-item {
             border-bottom: 1px solid #eee;
@@ -309,18 +320,18 @@
         /* Contact/Blog Modal Close Button */
         .modal-close-btn {
             position: absolute;      /* make it float over content */
-    top: 10px;               /* distance from top of modal */
-    right: 10px;             /* distance from right edge */
-    width: 36px;             /* optional size */
-    height: 36px;            /* optional size */
-    border-radius: 50%;      /* circular button */
-    background: rgba(0,0,0,0.1);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;             /* above modal content */
+            top: 10px;               /* distance from top of modal */
+            right: 10px;             /* distance from right edge */
+            width: 36px;             /* optional size */
+            height: 36px;            /* optional size */
+            border-radius: 50%;      /* circular button */
+            background: rgba(0,0,0,0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;             /* above modal content */
         }
         .modal-close-btn:hover {
             background: rgba(0,0,0,0.2);
@@ -351,22 +362,32 @@
             width: 100%;
             object-fit: cover;
         }
-        }
-        /* Swipe indicator for mobile */
+
+        /* Swipe indicator for mobile (The gray line) */
         .swipe-indicator {
-            display: none;
+            display: none; /* Hidden by default on desktop */
             width: 40px;
             height: 5px;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.2); /* Gray line color */
             border-radius: 3px;
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+            /* Use sticky/positioning to place it at the top of the modal's content */
+            margin: 10px auto 15px auto; /* Centered with top and bottom spacing */
         }
+        
         @media (max-width: 768px) {
             .swipe-indicator {
                 display: block;
+                /* Reset existing positioning for the new sticky/margin approach */
+                position: relative; 
+                top: auto;
+                left: auto;
+                transform: none;
+            }
+        }
+
+        /* Desktop-specific styles (re-declared to ensure it's hidden) */
+        @media (min-width: 769px) {
+            .swipe-indicator {
+                display: none;
             }
         }
