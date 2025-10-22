@@ -10,10 +10,23 @@
       <link rel="stylesheet" href="styles.css">  
     
     <script>
-        // Get the hostname (e.g., www.example.com or example.com)
+        // 1. Define the redirect function globally
+        function redirectToSpaceship(event) {
+            const domainName = event.currentTarget.getAttribute("data-domain");
+            if (domainName) {
+                const redirectUrl = `https://www.spaceship.com/domain-search/?query=${domainName.toLowerCase()}&beast=false&tab=domains`;
+                window.open(redirectUrl, "_blank");
+                // Assuming closeModal is defined in script.js or elsewhere
+                if (typeof closeModal === 'function') {
+                    closeModal("domainModal"); 
+                }
+            }
+        }
+
+        // Get the full hostname (e.g., www.example.com or example.com)
         const rawHostname = window.location.hostname;
         
-        // Remove 'www.' if it exists
+        // Remove 'www.' if it exists to get the clean domain name
         const currentDomain = rawHostname.replace(/^www\./, '');
         
         // Capitalize the first letter
@@ -21,13 +34,22 @@
         if (currentDomain.length > 0) {
             capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
         }
-        
-        // Find the element and set its content immediately
-        // Note: document.getElementById works even if the element hasn't been parsed yet.
-        const domainElement = document.getElementById('domainDisplay3'); 
-        if (domainElement) {
-            domainElement.textContent = capitalizedDomain;
-        }
+
+        // Wait for the DOM to be fully loaded to ensure all elements are available
+        document.addEventListener('DOMContentLoaded', () => {
+            const domainElement = document.getElementById('domainDisplay3'); 
+            const buttonElement = document.getElementById('spaceshipButton'); // New button ID
+            
+            // 1. Update the H1 element (Fixes the dot issue)
+            if (domainElement) {
+                domainElement.textContent = capitalizedDomain;
+            }
+            
+            // 2. Set the data-domain attribute on the new button for the redirect function
+            if (buttonElement) {
+                buttonElement.setAttribute('data-domain', currentDomain);
+            }
+        });
     </script>
 </head>
 <body class="flex flex-col min-h-screen bg-gray-100">
@@ -36,10 +58,23 @@
     <main class="flex-grow w-full flex flex-col items-center pb-5 pt-8">
         <div class="w-full max-w-md mx-auto">
             
-            <div class="p-10 mb-6 text-center text-white rounded-lg shadow-xl bg-gradient-to-br from-blue-900 to-indigo-600">
+            <div class="px-10 pt-10 pb-4 mb-6 text-center text-white rounded-lg shadow-xl bg-gradient-to-br from-blue-900 to-indigo-600">
                 <h1 id="domainDisplay3" class="text-4xl font-bold mb-2"></h1>
                 <p class="text-lg font-medium opacity-90">Available for sale!</p>
-            </div>
+                
+                <button 
+                    id="spaceshipButton"
+                    onclick="redirectToSpaceship(event)" 
+                    class="inline-flex items-center justify-center p-1 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition"
+                    title="Check domain availability on Spaceship"
+                >
+                    <img 
+                        src="https://forsale.spaceship-cdn.com/static/version/0.24.0/assets/fonts/spaceship-logo.svg" 
+                        alt="Spaceship Logo" 
+                        class="h-6"
+                    />
+                </button>
+                </div>
 
             <div class="bg-white p-8 sm:p-10 text-left rounded-lg shadow-xl">
     <h2 class="text-xl font-semibold text-blue-900 mb-8">Contact the seller</h2>
