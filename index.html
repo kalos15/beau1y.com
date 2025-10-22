@@ -23,7 +23,7 @@
             }
         }
 
-        // 2. NEW FUNCTION: Handle Web3Forms submission via AJAX to prevent redirect
+        // 2. Handle Web3Forms submission via AJAX to prevent redirect
         function submitWeb3Form(event) {
             event.preventDefault(); // Stop the default form submission (this prevents the redirect)
 
@@ -53,15 +53,19 @@
                     form.reset();
                 } else {
                     // Handle server-side errors (e.g., spam protection failure)
-                    alert('An error occurred during submission. Please try again.');
+                    console.error('Submission error:', response.status);
+                    // Use a message box instead of alert()
+                    document.getElementById('submissionErrorText').textContent = 'An error occurred during submission. Please check your network and try again.';
+                    openModal('errorModal');
                 }
             })
             .catch(error => {
                 // Handle network errors
-                alert('A network error occurred. Please check your connection.');
+                console.error('Network error:', error);
+                document.getElementById('submissionErrorText').textContent = 'A network error occurred. Please check your connection.';
+                openModal('errorModal');
             });
         }
-        // END NEW FUNCTION
 
         // Get the full hostname (e.g., www.example.com or example.com)
         const rawHostname = window.location.hostname;
@@ -78,9 +82,9 @@
         // Wait for the DOM to be fully loaded to ensure all elements are available
         document.addEventListener('DOMContentLoaded', () => {
             const domainElement = document.getElementById('domainDisplay3'); 
-            const buttonElement = document.getElementById('spaceshipButton'); // New button ID
+            const buttonElement = document.getElementById('spaceshipButton'); 
             
-            // 1. Update the H1 element (Fixes the dot issue)
+            // 1. Update the H1 element (Uses capitalized domain)
             if (domainElement) {
                 domainElement.textContent = capitalizedDomain;
             }
@@ -90,15 +94,60 @@
                 buttonElement.setAttribute('data-domain', currentDomain);
             }
 
-            // 3. NEW LOGIC: Attach the AJAX submission handler to the form
+            // 3. Attach the AJAX submission handler to the form
             const web3Form = document.getElementById('web3Form');
             if (web3Form) {
                 web3Form.addEventListener('submit', submitWeb3Form);
             }
+
+            // 4. Update Privacy Policy text with the dynamic domain (Uses non-capitalized domain for URL integrity)
+            const privacyText1 = document.getElementById('privacyDomainText1');
+            const privacyText2 = document.getElementById('privacyDomainText2');
+            
+            if (privacyText1) {
+                privacyText1.textContent = currentDomain;
+            }
+            if (privacyText2) {
+                privacyText2.textContent = currentDomain;
+            }
         });
+        
+        // Modal logic (kept here for completeness, usually in script.js)
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.showModal();
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.close();
+            }
+        }
     </script>
+    <!-- Modal styles for the dialog element -->
+    <style>
+        dialog {
+            border: none;
+            padding: 0;
+            border-radius: 0.75rem;
+            max-width: 90%;
+            margin: auto;
+            z-index: 50;
+        }
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        /* Ensure the body font is used */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
-<body class="flex flex-col min-h-screen bg-gray-100">
+<body class="flex flex-col min-h-screen bg-gray-100" style="font-family: 'Inter', sans-serif;">
     <nav class="hidden"></nav>
     
     <main class="flex-grow w-full flex flex-col items-center pb-5 pt-8">
@@ -293,7 +342,8 @@
                 
                 <div class="text-gray-700 space-y-6 text-sm">
                     
-                    <p>This Privacy Policy describes how [Your Name/Entity Name] ("I", "we", or "us") collects, uses, and discloses your personal information when you visit or make an inquiry through the domain landing page at spaceht.com. For the purpose of this policy, the data controller is the domain owner, **kalos_15**.</p>
+                    <!-- DYNAMIC DOMAIN 1: Introductory paragraph. Uses unique ID to ensure it updates. -->
+                    <p>This Privacy Policy describes how [Your Name/Entity Name] ("I", "we", or "us") collects, uses, and discloses your personal information when you visit or make an inquiry through the domain landing page at <span id="privacyDomainText1">spaceht.com</span>. For the purpose of this policy, the data controller is the domain owner, **kalos_15**.</p>
 
                     <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-2">1. Information We Collect</h3>
                     <p>We collect "Personal Information" when you voluntarily provide it to us through the contact form:</p>
@@ -310,7 +360,8 @@
                     <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-2">2. How We Use Your Information</h3>
                     <p>We use the collected information for the following purposes (Legal Basis: Legitimate Interest in negotiating a sale):</p>
                     <ul class="list-disc list-inside ml-4 space-y-1">
-                        <li>To communicate with you regarding your inquiry about purchasing the domain spaceht.com.</li>
+                        <!-- DYNAMIC DOMAIN 2: Communication purpose. Uses unique ID to ensure it updates. -->
+                        <li>To communicate with you regarding your inquiry about purchasing the domain <span id="privacyDomainText2">spaceht.com</span>.</li>
                         <li>To facilitate a potential transaction and negotiate the sale.</li>
                         <li>To prevent fraudulent or abusive activities.</li>
                         <li>To comply with our legal obligations.</li>
@@ -351,10 +402,25 @@
             </div>
         </div>
     </dialog>
+    <!-- Modal for displaying errors instead of alert() -->
+    <dialog id="errorModal" class="p-0 backdrop:bg-black/50">
+        <div class="relative w-full h-full bg-white rounded-xl shadow-2xl max-w-sm mx-auto overflow-hidden">
+            <div class="p-6 text-center">
+                <svg class="mx-auto w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Error!</h2>
+                <p id="submissionErrorText" class="text-gray-600 mb-6">Something went wrong. Please try again later.</p>
+                <button onclick="closeModal('errorModal')" class="flex items-center justify-center px-6 py-3 bg-red-600 text-white font-semibold rounded-lg w-full hover:bg-red-700 transition shadow-md">
+                    Close 
+                </button>
+            </div>
+        </div>
+    </dialog>
     <dialog id="domainModal" class="p-0"></dialog>
     <dialog id="faqModal" class="p-0"></dialog>
     <dialog id="contactModal" class="p-0"></dialog>
     <dialog id="blogModal" class="p-0"></dialog>
-    <script src="script.js"></script>
+    <!-- script.js content is expected to be in a separate file, but for a single file mandate, 
+         all JS is already in the <script> block above, except for the modal functions which are 
+         included inline now for completeness and independence. -->
 </body>
 </html>
