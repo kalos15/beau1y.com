@@ -78,6 +78,41 @@
         if (currentDomain.length > 0) {
             capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
         }
+        
+        // --- NEW FUNCTION: Add Backdrop Close Listener ---
+        function addBackdropCloseListener(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            // Use onclick to ensure only one listener is active and close on backdrop click
+            modal.onclick = (event) => {
+                // If the click target is the dialog element itself (the backdrop), close it.
+                if (event.target === modal) {
+                    closeModal(modalId);
+                }
+            };
+        }
+        
+        // Modal logic (kept here for completeness, usually in script.js)
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.showModal();
+                // Call the new function to enable closing on backdrop click
+                addBackdropCloseListener(modalId);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.close();
+                // Optionally reset the onclick handler to remove the listener 
+                // when the modal is closed to prevent unexpected behavior.
+                modal.onclick = null;
+            }
+        }
+        // ------------------------------------------------
 
         // Wait for the DOM to be fully loaded to ensure all elements are available
         document.addEventListener('DOMContentLoaded', () => {
@@ -112,22 +147,7 @@
             }
         });
         
-        // Modal logic (kept here for completeness, usually in script.js)
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.showModal();
-            }
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.close();
-            }
-        }
     </script>
-    <!-- Modal styles for the dialog element -->
     <style>
         dialog {
             border: none;
@@ -410,7 +430,6 @@
             </div>
         </div>
     </dialog>
-    <!-- Modal for displaying errors instead of alert() -->
     <dialog id="errorModal" class="p-0 backdrop:bg-black/50">
         <div class="relative w-full h-full bg-white rounded-xl shadow-2xl max-w-sm mx-auto overflow-hidden">
             <div class="p-6 text-center">
@@ -427,9 +446,5 @@
     <dialog id="faqModal" class="p-0"></dialog>
     <dialog id="contactModal" class="p-0"></dialog>
     <dialog id="blogModal" class="p-0"></dialog>
-    <!-- script.js content is expected to be in a separate file, but for a single file mandate, 
-         all JS is already in the <script> block above, except for the modal functions which are 
-         included inline now for completeness and independence. -->
-</body>
+    </body>
 </html>
-
