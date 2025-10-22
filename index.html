@@ -9,41 +9,42 @@
     
       <link rel="stylesheet" href="styles.css">  
     
+    <script>
+        // Get the full hostname (e.g., www.example.com or example.com)
+        const rawHostname = window.location.hostname;
+        
+        // Remove 'www.' if it exists to get the clean domain name
+        const currentDomain = rawHostname.replace(/^www\./, '');
+        
+        // --- New Code for Capitalization ---
+        let capitalizedDomain = currentDomain;
+        
+        // Check if the string is not empty before attempting to capitalize
+        if (currentDomain.length > 0) {
+            capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
+        }
+        // ------------------------------------
+        
+        // Use a DOMContentLoaded listener to ensure the element exists before trying to update it
+        document.addEventListener('DOMContentLoaded', () => {
+            const domainElement = document.getElementById('domainDisplay3'); 
+            
+            // Check if the element exists and update its text content
+            if (domainElement) {
+                // Use the newly capitalized string
+                domainElement.textContent = capitalizedDomain;
+            }
+        });
+    </script>
 </head>
 <body class="flex flex-col min-h-screen bg-gray-100">
-    <nav class="hidden">
-<script>
-    // Get the full hostname (e.g., www.example.com or example.com)
-    const rawHostname = window.location.hostname;
-    
-    // Remove 'www.' if it exists to get the clean domain name
-    const currentDomain = rawHostname.replace(/^www\./, '');
-    
-    // --- New Code for Capitalization ---
-    let capitalizedDomain = currentDomain;
-    
-    // Check if the string is not empty before attempting to capitalize
-    if (currentDomain.length > 0) {
-        capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
-    }
-    // ------------------------------------
-    
-    // 💡 UPDATED: Get the element using the id 'domainDisplay3'
-    const domainElement = document.getElementById('domainDisplay3'); 
-    
-    // Check if the element exists and update its text content
-    if (domainElement) {
-        // Use the newly capitalized string
-        domainElement.textContent = capitalizedDomain;
-    }
-</script>
-    </nav>
+    <nav class="hidden"></nav>
     
     <main class="flex-grow w-full flex flex-col items-center pb-5 pt-8">
         <div class="w-full max-w-md mx-auto">
             
             <div class="p-10 mb-6 text-center text-white rounded-lg shadow-xl bg-gradient-to-br from-blue-900 to-indigo-600">
-                <h1 id="domainDisplay3" class="navbar-logo">.</h1>
+                <h1 id="domainDisplay3" class="text-4xl font-bold mb-2"></h1>
                 <p class="text-lg font-medium opacity-90">Available for sale!</p>
             </div>
 
@@ -265,4 +266,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
