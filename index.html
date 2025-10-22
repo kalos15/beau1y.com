@@ -12,18 +12,31 @@
 </head>
 <body class="flex flex-col min-h-screen bg-gray-100">
     <nav class="hidden">
-        <script>
-            const rawHostname = window.location.hostname;
-            const currentDomain = rawHostname.replace(/^www\./, '');
-            let capitalizedDomain = currentDomain;
-            if (currentDomain.length > 0) {
-                capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
-            }
-            const domainElement = document.getElementById('domainDisplay3'); 
-            if (domainElement) {
-                domainElement.textContent = capitalizedDomain;
-            }
-        </script>
+<script>
+    // Get the full hostname (e.g., www.example.com or example.com)
+    const rawHostname = window.location.hostname;
+    
+    // Remove 'www.' if it exists to get the clean domain name
+    const currentDomain = rawHostname.replace(/^www\./, '');
+    
+    // --- New Code for Capitalization ---
+    let capitalizedDomain = currentDomain;
+    
+    // Check if the string is not empty before attempting to capitalize
+    if (currentDomain.length > 0) {
+        capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
+    }
+    // ------------------------------------
+    
+    // 💡 UPDATED: Get the element using the id 'domainDisplay3'
+    const domainElement = document.getElementById('domainDisplay3'); 
+    
+    // Check if the element exists and update its text content
+    if (domainElement) {
+        // Use the newly capitalized string
+        domainElement.textContent = capitalizedDomain;
+    }
+</script>
     </nav>
     
     <main class="flex-grow w-full flex flex-col items-center pb-5 pt-8">
