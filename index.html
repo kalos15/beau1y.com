@@ -23,6 +23,46 @@
             }
         }
 
+        // 2. NEW FUNCTION: Handle Web3Forms submission via AJAX to prevent redirect
+        function submitWeb3Form(event) {
+            event.preventDefault(); // Stop the default form submission (this prevents the redirect)
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const formAction = form.getAttribute('action');
+            
+            // Note: A real implementation would show a loading state here
+
+            fetch(formAction, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json' // Essential for Formspree/Web3Forms AJAX
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Close the contact form and open the success modal
+                    if (typeof closeModal === 'function') {
+                        closeModal('contactFormModal');
+                    }
+                    if (typeof openModal === 'function') {
+                        openModal('successModal');
+                    }
+                    // Reset the form fields
+                    form.reset();
+                } else {
+                    // Handle server-side errors (e.g., spam protection failure)
+                    alert('An error occurred during submission. Please try again.');
+                }
+            })
+            .catch(error => {
+                // Handle network errors
+                alert('A network error occurred. Please check your connection.');
+            });
+        }
+        // END NEW FUNCTION
+
         // Get the full hostname (e.g., www.example.com or example.com)
         const rawHostname = window.location.hostname;
         
@@ -48,6 +88,12 @@
             // 2. Set the data-domain attribute on the new button for the redirect function
             if (buttonElement) {
                 buttonElement.setAttribute('data-domain', currentDomain);
+            }
+
+            // 3. NEW LOGIC: Attach the AJAX submission handler to the form
+            const web3Form = document.getElementById('web3Form');
+            if (web3Form) {
+                web3Form.addEventListener('submit', submitWeb3Form);
             }
         });
     </script>
@@ -134,8 +180,10 @@
                 <h2 class="text-20xl font-bold text-gray-900 mb-2">Let's get started!</h2>
                 <p class="text-gray-600 mb-6">Enter your contact information to begin.</p>
 
-                <form action="https://formspree.io/f/xpwygqpv" method="POST" class="space-y-4">
+                <form id="web3Form" action="https://api.web3forms.com/submit" method="POST" class="space-y-4">
                     
+                    <input type="hidden" name="access_key" value="0a5ba382-d767-45fc-aeb3-83fd5a712c4e">
+                    <input type="hidden" name="subject" value="New Domain Inquiry"> 
                     <div class="relative">
                         <label class="sr-only" for="fullName">Full name (Required)</label>
                         <input type="text" id="fullName" name="name" placeholder="Full name (Required)" required class="w-full py-1 px-4 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
@@ -267,7 +315,7 @@
                     <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-2">3. Sharing Your Personal Information</h3>
                     <p>We share your Personal Information with third parties solely to help us use your Personal Information, as described above:</p>
                     <ul class="list-disc list-inside ml-4 space-y-1">
-                        <li>**Formspree:** We use Formspree (action="https://formspree.io/f/xpwygqpv") to process and manage submissions from our contact form. Your data is submitted directly to Formspree, and their handling of your data is governed by the Formspree Privacy Policy.</li>
+                        <li>**Web3Forms:** We use Web3Forms (action="https://api.web3forms.com/submit") to process and manage submissions from our contact form. Your data is submitted directly to Web3Forms, and their handling of your data is governed by the Web3Forms Privacy Policy.</li>
                         <li>We may also share your Personal Information to comply with applicable laws and regulations, to respond to a subpoena, search warrant or other lawful request for information we receive.</li>
                     </ul>
 
@@ -285,6 +333,20 @@
             </div>
         </div>
     </dialog>
+
+    <dialog id="successModal" class="p-0 backdrop:bg-black/50">
+        <div class="relative w-full h-full bg-white rounded-xl shadow-2xl max-w-sm mx-auto overflow-hidden">
+            <div class="p-6 text-center">
+                <svg class="mx-auto w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Success!</h2>
+                <p class="text-gray-600 mb-6">The form has been successfully sent.</p>
+
+                <button onclick="closeModal('successModal')" class="flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg w-full hover:bg-blue-700 transition shadow-md">
+                    Return to the original site 
+                </button>
+            </div>
+        </div>
+    </dialog>
     <dialog id="domainModal" class="p-0"></dialog>
     <dialog id="faqModal" class="p-0"></dialog>
     <dialog id="contactModal" class="p-0"></dialog>
@@ -292,4 +354,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
