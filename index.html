@@ -10,31 +10,24 @@
       <link rel="stylesheet" href="styles.css">  
     
     <script>
-        // Get the full hostname (e.g., www.example.com or example.com)
+        // Get the hostname (e.g., www.example.com or example.com)
         const rawHostname = window.location.hostname;
         
-        // Remove 'www.' if it exists to get the clean domain name
+        // Remove 'www.' if it exists
         const currentDomain = rawHostname.replace(/^www\./, '');
         
-        // --- New Code for Capitalization ---
+        // Capitalize the first letter
         let capitalizedDomain = currentDomain;
-        
-        // Check if the string is not empty before attempting to capitalize
         if (currentDomain.length > 0) {
             capitalizedDomain = currentDomain.charAt(0).toUpperCase() + currentDomain.slice(1);
         }
-        // ------------------------------------
         
-        // Use a DOMContentLoaded listener to ensure the element exists before trying to update it
-        document.addEventListener('DOMContentLoaded', () => {
-            const domainElement = document.getElementById('domainDisplay3'); 
-            
-            // Check if the element exists and update its text content
-            if (domainElement) {
-                // Use the newly capitalized string
-                domainElement.textContent = capitalizedDomain;
-            }
-        });
+        // Find the element and set its content immediately
+        // Note: document.getElementById works even if the element hasn't been parsed yet.
+        const domainElement = document.getElementById('domainDisplay3'); 
+        if (domainElement) {
+            domainElement.textContent = capitalizedDomain;
+        }
     </script>
 </head>
 <body class="flex flex-col min-h-screen bg-gray-100">
